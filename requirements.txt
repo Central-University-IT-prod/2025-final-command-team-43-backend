@@ -1,0 +1,14 @@
+asgiref==3.8.1
+Django==5.1.6
+djangorestframework==3.15.2
+djangorestframework_simplejwt==5.5.0
+django-cors-headers==4.7.0
+psycopg2-binary==2.9.10
+PyJWT==2.9.0
+python-dotenv==1.0.1
+sqlparse==0.5.3
+pytest==7.2.2
+drf_spectacular==0.28.0
+ruff==0.9.9
+tavern==2.11.0
+django-apscheduler==0.7.0

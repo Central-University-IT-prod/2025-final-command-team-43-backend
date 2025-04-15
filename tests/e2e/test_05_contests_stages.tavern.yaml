@@ -1,0 +1,86 @@
+test_name: Test contests stages system
+
+includes:
+  - !include components/users.yaml
+  - !include components/contests.yaml
+
+stages:
+  - type: ref
+    id: create_organiser
+
+  - type: ref
+    id: login_user
+
+  - type: ref
+    id: create_contest
+
+  - name: Check stage is preparing
+    request:
+      url: "{BASE_URL}/contests/{contest_id}"
+      headers:
+        Authorization: "Bearer {access_token}"
+    response:
+      status_code: 200
+      json:
+        stage: "preparing"
+
+  - name: Move to in_progress stage
+    request:
+      url: "{BASE_URL}/contests/{contest_id}/ready"
+      method: POST
+      headers:
+        Authorization: "Bearer {access_token}"
+    response:
+      status_code: 204
+
+  - name: Check stage is in_progress
+    request:
+      url: "{BASE_URL}/contests/{contest_id}"
+      headers:
+        Authorization: "Bearer {access_token}"
+    response:
+      status_code: 200
+      json:
+        stage: "in_progress"
+
+  - name: Update end_datetime to past date
+    request:
+      url: "{BASE_URL}/contests/{contest_id}"
+      method: PATCH
+      headers:
+        Authorization: "Bearer {access_token}"
+      json:
+        end_datetime: "2022-01-01T00:00:00Z"
+    response: 
+      status_code: 200
+  
+  - name: Check that in 20 seconds the stage will be updated
+    delay_before: 5
+    max_retries: 4
+    request:
+      url: "{BASE_URL}/contests/{contest_id}"
+      headers:
+        Authorization: "Bearer {access_token}"
+    response:
+      status_code: 200
+      json:
+        stage: "checking"
+
+  - name: Move to finished stage
+    request:
+      url: "{BASE_URL}/contests/{contest_id}/finish"
+      method: POST
+      headers:
+        Authorization: "Bearer {access_token}"
+    response:
+      status_code: 204
+
+  - name: Check stage is finished
+    request:
+      url: "{BASE_URL}/contests/{contest_id}"
+      headers:
+        Authorization: "Bearer {access_token}"
+    response:
+      status_code: 200
+      json:
+        stage: "finished"

@@ -1,0 +1,93 @@
+test_name: Test contests CRUD
+
+includes:
+  - !include components/users.yaml
+  - !include components/contests.yaml
+
+stages:
+  - type: ref
+    id: create_organiser
+
+  - type: ref
+    id: login_user
+
+  - type: ref
+    id: create_contest
+
+  - name: Get contests list, do not verify body
+    request:
+      url: "{BASE_URL}/contests"
+      headers:
+        Authorization: "Bearer {access_token}"
+    response:
+      status_code: 200
+
+  - name: Get contest
+    request:
+      url: "{BASE_URL}/contests/{contest_id}"
+      headers:
+        Authorization: "Bearer {access_token}"
+    response:
+      status_code: 200
+      json:
+        id: "{contest_id}"
+        title: "DANO 2023 - second tour"
+        description: "Participate in the second tournament of DANO 2023"
+        start_datetime: "2023-06-01T10:00:00+03:00"
+        end_datetime: "2050-06-30T10:00:00+03:00"
+        cross_check_org_count: 2
+        stage: "preparing"
+        organisers:
+          - id: "{user_id}"
+        tasks: []
+  
+  - name: Update some fields
+    request:
+      url: "{BASE_URL}/contests/{contest_id}"
+      method: PATCH
+      headers:
+        Authorization: "Bearer {access_token}"
+      json:
+        description: "Updated description for DANO 2023 second tour"
+        end_datetime: "2051-06-30T10:00:00+03:00"
+    response:
+      status_code: 200
+      json:
+        id: "{contest_id}"
+        title: "DANO 2023 - second tour" 
+        description: "Updated description for DANO 2023 second tour"
+        start_datetime: "2023-06-01T10:00:00+03:00"
+        end_datetime: "2051-06-30T10:00:00+03:00"
+        cross_check_org_count: 2
+
+  - name: Get updated contest
+    request:
+      url: "{BASE_URL}/contests/{contest_id}"
+      headers:
+        Authorization: "Bearer {access_token}"
+    response:
+      status_code: 200
+      json:
+        id: "{contest_id}"
+        title: "DANO 2023 - second tour"
+        description: "Updated description for DANO 2023 second tour"
+        start_datetime: "2023-06-01T10:00:00+03:00"
+        end_datetime: "2051-06-30T10:00:00+03:00"
+        cross_check_org_count: 2
+
+  - name: Delete contest
+    request:
+      url: "{BASE_URL}/contests/{contest_id}"
+      method: DELETE
+      headers:
+        Authorization: "Bearer {access_token}"
+    response:
+      status_code: 204
+
+  - name: Try to get deleted contest
+    request:
+      url: "{BASE_URL}/contests/{contest_id}" 
+      headers:
+        Authorization: "Bearer {access_token}"
+    response:
+      status_code: 404

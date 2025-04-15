@@ -1,0 +1,97 @@
+stages:
+  - name: Create user
+    id: create_user
+    request:
+      url: "{BASE_URL}/register"
+      method: POST
+      json:
+        username: "{RUN_ID}"
+        email: "{RUN_ID}@prod.ru"
+        password: PRODPROD
+    response:
+      status_code: 201
+      json:
+        username: "{RUN_ID}"
+        email: "{RUN_ID}@prod.ru"
+        role: "participant"
+        teams: []
+      save:
+        json:
+          user_id: id
+
+  - name: Create organiser
+    id: create_organiser
+    request:
+      url: "{BASE_URL}/register"
+      method: POST
+      json:
+        username: "{RUN_ID}"
+        email: "{RUN_ID}@prod.ru"
+        password: PRODPROD
+        role: organiser
+    response:
+      status_code: 201
+      json:
+        username: "{RUN_ID}"
+        email: "{RUN_ID}@prod.ru"
+        role: "organiser"
+        teams: []
+      save:
+        json:
+          user_id: id
+
+  - name: Login to user
+    id: login_user
+    request:
+      url: "{BASE_URL}/token"
+      method: POST
+      json:
+        username: "{RUN_ID}"
+        password: PRODPROD
+    response:
+      status_code: 200
+      json:
+        access: !anystr
+        refresh: !anystr
+      save:
+        json:
+          access_token: access
+          refresh_token: refresh
+
+  - name: Create user 2
+    id: create_user2
+    request:
+      url: "{BASE_URL}/register"
+      method: POST
+      json:
+        username: "{RUN_ID}_2"
+        email: "{RUN_ID}_2@prod.ru"
+        password: PRODPROD
+    response:
+      status_code: 201
+      json:
+        username: "{RUN_ID}_2"
+        email: "{RUN_ID}_2@prod.ru"
+        role: "participant"
+        teams: []
+      save:
+        json:
+          user2_id: id
+
+  - name: Login to user 2
+    id: login_user2
+    request:
+      url: "{BASE_URL}/token"
+      method: POST
+      json:
+        username: "{RUN_ID}_2"
+        password: PRODPROD
+    response:
+      status_code: 200
+      json:
+        access: !anystr
+        refresh: !anystr
+      save:
+        json:
+          access_token2: access
+          refresh_token2: refresh

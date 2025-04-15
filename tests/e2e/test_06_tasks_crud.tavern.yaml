@@ -1,0 +1,87 @@
+test_name: Test contests stages system
+
+includes:
+  - !include components/users.yaml
+  - !include components/contests.yaml
+
+stages:
+  - type: ref
+    id: create_organiser
+
+  - type: ref
+    id: login_user
+
+  - type: ref
+    id: create_contest
+
+  - name: Get task list, check it's empty
+    request:
+      url: "{BASE_URL}/contests/{contest_id}/tasks"
+      headers:
+        Authorization: "Bearer {access_token}"
+    response:
+      status_code: 200
+      # For some reason `json: []` accepts non-empty lists
+      verify_response_with:
+        function: utils:empty
+
+  - type: ref
+    id: create_task
+
+  - name: Get task list, check it's not empty
+    request:
+      url: "{BASE_URL}/contests/{contest_id}/tasks"
+      headers:
+        Authorization: "Bearer {access_token}"
+    response:
+      status_code: 200
+      json:
+        - id: "{task_id}"
+          org_text: "It's an integer between 3 and 5, exclusive."
+
+  - name: Get task
+    request:
+      url: "{BASE_URL}/contests/{contest_id}/tasks/{task_id}"
+      headers:
+        Authorization: "Bearer {access_token}"
+    response:
+      status_code: 200
+      json: !include components/task1.json
+
+  - name: Update description, max_attempts and max_points
+    request:
+      url: "{BASE_URL}/contests/{contest_id}/tasks/{task_id}"
+      method: PATCH
+      headers:
+        Authorization: "Bearer {access_token}"
+      json:
+        description: "New description"
+        max_attempts: 3
+        max_points: 5
+    response:
+      status_code: 200
+      json:
+        description: "New description"
+        max_attempts: 3
+        max_points: 5
+
+  - name: Get updated task
+    request:
+      url: "{BASE_URL}/contests/{contest_id}/tasks/{task_id}"
+      headers:
+        Authorization: "Bearer {access_token}"
+    response:
+      status_code: 200
+      json:
+        description: "New description"
+        max_attempts: 3
+        max_points: 5
+
+  - name: Delete task
+    request:
+      url: "{BASE_URL}/contests/{contest_id}/tasks/{task_id}"
+      method: DELETE
+      headers:
+        Authorization: "Bearer {access_token}"
+    response:
+      status_code: 204

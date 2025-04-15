@@ -1,0 +1,30 @@
+stages:
+  - name: Create contest
+    id: create_contest
+    request:
+      url: "{BASE_URL}/contests/create"
+      method: POST
+      headers:
+        Authorization: "Bearer {access_token}"
+      json: !include contest1.json
+    response:
+      status_code: 201
+      json: !include contest1.json
+      save:
+        json:
+          contest_id: id
+
+  - name: Create task
+    id: create_task
+    request:
+      url: "{BASE_URL}/contests/{contest_id}/tasks"
+      method: POST
+      headers:
+        Authorization: "Bearer {access_token}"
+      json: !include task1.json
+    response:
+      status_code: 201
+      json: !include task1.json
+      save:
+        json:
+          task_id: id

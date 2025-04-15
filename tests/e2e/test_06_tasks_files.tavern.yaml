@@ -1,0 +1,111 @@
+test_name: Test contests stages system
+
+includes:
+  - !include components/users.yaml
+  - !include components/contests.yaml
+
+stages:
+  - type: ref
+    id: create_organiser
+
+  - type: ref
+    id: login_user
+
+  - type: ref
+    id: create_contest
+
+  - type: ref
+    id: create_task
+
+  - name: Upload org file
+    request:
+      url: "{BASE_URL}/contests/{contest_id}/tasks/{task_id}/upload-org-files"
+      method: POST
+      files:
+        olesya: components/task.pdf
+      headers:
+        Authorization: "Bearer {access_token}"
+    response:
+      status_code: 204
+
+  - name: Upload user file
+    request:
+      url: "{BASE_URL}/contests/{contest_id}/tasks/{task_id}/upload-user-files"
+      method: POST
+      files:
+        shakhov: components/task.pdf
+      headers:
+        Authorization: "Bearer {access_token}"
+    response:
+      status_code: 204
+
+  - name: Get task, retrieve file url
+    request:
+      url: "{BASE_URL}/contests/{contest_id}/tasks/{task_id}"
+      headers:
+        Authorization: "Bearer {access_token}"
+    response:
+      status_code: 200
+      save:
+        json:
+          org_file_id: org_files[0].id
+          org_file_url: org_files[0].file
+          user_file_id: user_files[0].id
+          user_file_url: user_files[0].file
+
+  - name: Get org file
+    request:
+      url: "{org_file_url}"
+      method: HEAD
+    response:
+      status_code: 200
+
+  - name: Get user file
+    request:
+      url: "{user_file_url}"
+      method: HEAD
+    response:
+      status_code: 200
+
+  - name: Delete org file
+    request:
+      url: "{BASE_URL}/files/org/{org_file_id}/delete"
+      method: DELETE
+      headers:
+        Authorization: "Bearer {access_token}"
+    response:
+      status_code: 204
+
+  - name: Check that org file was deleted from server
+    request:
+      url: "{org_file_url}"
+      method: HEAD
+    response:
+      status_code: 404
+
+  - name: Delete user file
+    request:
+      url: "{BASE_URL}/files/user/{user_file_id}/delete"
+      method: DELETE
+      headers:
+        Authorization: "Bearer {access_token}"
+    response:
+      status_code: 204
+
+  - name: Check that user file was deleted from server
+    request:
+      url: "{user_file_url}"
+      method: HEAD
+    response:
+      status_code: 404
+
+  - name: Check that org_files and user_files are empty
+    request:
+      url: "{BASE_URL}/contests/{contest_id}/tasks/{task_id}"
+      headers:
+        Authorization: "Bearer {access_token}"
+    response:
+      status_code: 200
+      json:
+        org_files: []
+        user_files: []

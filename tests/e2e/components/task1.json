@@ -1,0 +1,12 @@
+{
+  "title": "What's 2+2?",
+  "description": "The hard question",
+  "org_text": "It's an integer between 3 and 5, exclusive.",
+  "answer_type": "text",
+  "supported_file_formats": [
+    "string"
+  ],
+  "max_attempts": 1,
+  "max_points": 42,
+  "checker": {"type": "match", "args": {"pattern": "4"}}
+}

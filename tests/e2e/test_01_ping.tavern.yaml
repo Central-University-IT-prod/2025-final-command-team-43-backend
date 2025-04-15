@@ -1,0 +1,14 @@
+test_name: Ping server
+
+stages:
+  - name: "Check ping"
+    request:
+      url: "{BASE_URL}/ping"
+    response:
+      status_code: 200
+
+  - name: "Get swagger spec"
+    request:
+      url: "{BASE_URL}/schema/"
+    response:
+      status_code: 200

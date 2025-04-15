@@ -1,0 +1,21 @@
+test_name: Test permissions for /contests/create method
+
+includes:
+  - !include components/users.yaml
+
+stages:
+  - type: ref
+    id: create_user
+
+  - type: ref
+    id: login_user
+
+  - name: Check that regular users cannot create contests
+    request:
+      url: "{BASE_URL}/contests/create"
+      method: POST
+      headers:
+        Authorization: "Bearer {access_token}"
+      json: !include components/contest1.json
+    response:
+      status_code: 403

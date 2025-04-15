@@ -1,0 +1,57 @@
+test_name: Register and auth endpoints
+
+includes:
+    - !include components/users.yaml
+
+stages:
+  - type: ref
+    id: create_user
+
+  - type: ref
+    id: login_user
+
+  - name: Login with invalid creds
+    request:
+      url: "{BASE_URL}/token"
+      method: POST
+      json:
+        username: "{RUN_ID}"
+        password: PRODPROD1
+    response:
+      status_code: 401
+
+  - name: Get current profile
+    request:
+      url: "{BASE_URL}/profile"
+      headers:
+        Authorization: "Bearer {access_token}"
+    response:
+      status_code: 200
+      json:
+        id: "{user_id}"
+
+  - name: Refresh token
+    request:
+      url: "{BASE_URL}/token/refresh"
+      method: POST
+      json:
+        refresh: "{refresh_token}"
+    response:
+      status_code: 200
+      save:
+        json:
+          access_token2: access
+
+  - name: Request with new token
+    request:
+      url: "{BASE_URL}/profile"
+      headers:
+        Authorization: "Bearer {access_token2}"
+    response:
+      status_code: 200
+      json:
+        id: "{user_id}"
+        username: "{RUN_ID}"
+        email: "{RUN_ID}@prod.ru"
+        role: "participant"
+        teams: []

@@ -1,0 +1,72 @@
+test_name: Test profile CRUD
+
+includes:
+  - !include components/users.yaml
+
+stages:
+  - type: ref
+    id: create_user
+
+  - type: ref
+    id: login_user
+
+  - name: Get initial profile (Read)
+    request:
+      url: "{BASE_URL}/profile"
+      headers:
+        Authorization: "Bearer {access_token}"
+    response:
+      status_code: 200
+      json:
+        id: "{user_id}"
+        username: "{RUN_ID}"
+        email: "{RUN_ID}@prod.ru"
+        role: "participant"
+        teams: []
+        individual_team:
+          id: !anystr
+          name: "{RUN_ID}"
+          members:
+            - id: "{user_id}"
+              username: "{RUN_ID}"
+
+  # todo: update profile picture
+  
+  - name: Update multiple profile fields
+    request:
+      url: "{BASE_URL}/profile"
+      method: PUT
+      headers:
+        Authorization: "Bearer {access_token}"
+      json:
+        username: "{RUN_ID}new"
+        email: "{RUN_ID}@newprod.ru"
+        password: "PRODPRODnew"
+    response:
+      status_code: 200
+      json:
+        id: "{user_id}"
+        username: "{RUN_ID}new"
+        email: "{RUN_ID}@newprod.ru"
+
+  - name: Verify profile updates
+    request:
+      url: "{BASE_URL}/profile" 
+      headers:
+        Authorization: "Bearer {access_token}"
+    response:
+      status_code: 200
+      json:
+        id: "{user_id}"
+        username: "{RUN_ID}new"
+        email: "{RUN_ID}@newprod.ru"
+
+  - name: Try to login with new password
+    request:
+      url: "{BASE_URL}/token"
+      method: POST
+      json:
+        username: "{RUN_ID}new"
+        password: "PRODPRODnew"
+    response:
+      status_code: 200

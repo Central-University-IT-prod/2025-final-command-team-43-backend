@@ -1,0 +1,132 @@
+test_name: Test teams CRUD
+
+includes:
+  - !include components/users.yaml
+
+stages:
+  - type: ref
+    id: create_user
+
+  - type: ref
+    id: login_user
+
+  - type: ref
+    id: create_user2
+
+  - type: ref
+    id: login_user2
+
+  - name: Create team
+    request:
+      url: "{BASE_URL}/teams"
+      method: POST
+      headers:
+        Authorization: "Bearer {access_token}"
+      json:
+        name: "trinau"
+    response:
+      status_code: 201
+      json:
+        name: "trinau"
+        members:
+          - id: "{user_id}"
+      save:
+        json:
+          team_id: id
+
+  - name: Get team
+    request:
+      url: "{BASE_URL}/teams/{team_id}"
+      headers:
+        Authorization: "Bearer {access_token}"
+    response:
+      status_code: 200
+      json:
+        name: "trinau"
+        members:
+          - id: "{user_id}"
+            username: "{RUN_ID}"
+
+  - name: Update team name
+    request:
+      url: "{BASE_URL}/teams/{team_id}"
+      method: PATCH
+      headers:
+        Authorization: "Bearer {access_token}"
+      json:
+        name: "trinau2"
+    response:
+      status_code: 200
+      json:
+        name: "trinau2"
+
+  - name: Add members
+    request:
+      url: "{BASE_URL}/teams/{team_id}/add-members"
+      method: POST
+      headers:
+        Authorization: "Bearer {access_token}"
+      json:
+        - "{user2_id}"
+    response:
+      status_code: 200
+      json:
+        members:  # checking partially
+          - id: "{user2_id}"
+
+  - name: Get new team
+    request:
+      url: "{BASE_URL}/teams/{team_id}"
+      headers:
+        Authorization: "Bearer {access_token}"
+    response:
+      status_code: 200
+      json:
+        name: "trinau2"
+        members:
+          - id: "{user2_id}"  # checking partially
+            username: "{RUN_ID}_2"
+
+  - name: Remove member from team
+    request:
+      url: "{BASE_URL}/teams/{team_id}/remove-members"
+      method: POST
+      headers:
+        Authorization: "Bearer {access_token}"
+      json:
+        - "{user2_id}"
+    response:
+      status_code: 200
+      json:
+        members:
+          - id: "{user_id}"
+
+  - name: Get new team
+    request:
+      url: "{BASE_URL}/teams/{team_id}"
+      headers:
+        Authorization: "Bearer {access_token}"
+    response:
+      status_code: 200
+      json:
+        name: "trinau2"
+        members:
+          - id: "{user_id}"
+            username: "{RUN_ID}"
+
+  - name: Delete team
+    request:
+      url: "{BASE_URL}/teams/{team_id}"
+      method: DELETE
+      headers:
+        Authorization: "Bearer {access_token}"
+    response:
+      status_code: 204
+
+  - name: Get deleted team
+    request:
+      url: "{BASE_URL}/teams/{team_id}"
+      headers:
+        Authorization: "Bearer {access_token}"
+    response:
+      status_code: 404
